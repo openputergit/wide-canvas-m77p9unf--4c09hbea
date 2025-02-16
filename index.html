@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div id="loading" class="loading">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-md w-96">
+            <h2 class="text-2xl mb-6 text-center font-semibold">POS Tracker Login</h2>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Username</label>
+                    <input type="text" id="username" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2" required>
+                </div>
+                <button type="submit" class="w-full bg-cyan-500 text-white p-2 rounded-md hover:bg-cyan-600">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="hidden">
+        <nav class="bg-white shadow-md p-4">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-xl font-bold">POS Tracker</h1>
+                <button id="logoutBtn" class="text-gray-600 hover:text-gray-800"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            </div>
+        </nav>
+
+        <div class="container mx-auto p-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <button id="makeTransactionBtn" class="bg-cyan-500 text-white p-4 rounded-lg hover:bg-cyan-600">
+                    <i class="bi bi-plus-circle text-2xl"></i>
+                    <div>Make Transaction</div>
+                </button>
+                <button id="dailyTransactionBtn" class="bg-cyan-500 text-white p-4 rounded-lg hover:bg-cyan-600">
+                    <i class="bi bi-calendar-check text-2xl"></i>
+                    <div>Daily Transaction</div>
+                </button>
+                <button id="reportBtn" class="bg-cyan-500 text-white p-4 rounded-lg hover:bg-cyan-600">
+                    <i class="bi bi-file-text text-2xl"></i>
+                    <div>Report</div>
+                </button>
+                <button id="managementBtn" class="bg-cyan-500 text-white p-4 rounded-lg hover:bg-cyan-600">
+                    <i class="bi bi-gear text-2xl"></i>
+                    <div>Management</div>
+                </button>
+            </div>
+
+            <!-- Transaction Form -->
+            <div id="transactionForm" class="hidden bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-bold mb-4">Add New Transaction</h2>
+                <form id="newTransactionForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium">Transaction Type</label>
+                        <select class="w-full border rounded-md p-2" required>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Date</label>
+                        <input type="date" class="w-full border rounded-md p-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Customer Name</label>
+                        <input type="text" class="w-full border rounded-md p-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Product</label>
+                        <input type="text" class="w-full border rounded-md p-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Amount</label>
+                        <input type="number" class="w-full border rounded-md p-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium">Payment Type</label>
+                        <select class="w-full border rounded-md p-2" required>
+                            <option value="cash">Cash</option>
+                            <option value="card">Card</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Add Transaction</button>
+                </form>
+            </div>
+
+            <!-- Daily Transactions -->
+            <div id="dailyTransactions" class="hidden bg-white p-6 rounded-lg shadow-md">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Daily Transaction</h2>
+                    <div class="flex gap-2">
+                        <input type="date" class="border rounded-md p-2">
+                        <select class="border rounded-md p-2">
+                            <option value="name">Name</option>
+                            <option value="date">Date</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="p-2 text-left">S/N</th>
+                                <th class="p-2 text-left">Customer Name</th>
+                                <th class="p-2 text-left">Product</th>
+                                <th class="p-2 text-left">Amount</th>
+                                <th class="p-2 text-left">Payment Type</th>
+                                <th class="p-2 text-left">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Report -->
+            <div id="reportSection" class="hidden bg-white p-6 rounded-lg shadow-md">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Report</h2>
+                    <div class="flex gap-2">
+                        <input type="date" class="border rounded-md p-2">
+                        <button class="bg-cyan-500 text-white px-4 py-2 rounded-md">Export</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-4 gap-4 mb-4">
+                    <div class="p-4 bg-gray-100 rounded-lg">
+                        <div class="font-bold">Payment Mode</div>
+                        <div>Cash: $0</div>
+                    </div>
+                    <div class="p-4 bg-gray-100 rounded-lg">
+                        <div class="font-bold">Income</div>
+                        <div>$0</div>
+                    </div>
+                    <div class="p-4 bg-gray-100 rounded-lg">
+                        <div class="font-bold">Expense</div>
+                        <div>$0</div>
+                    </div>
+                    <div class="p-4 bg-gray-100 rounded-lg">
+                        <div class="font-bold">Profit</div>
+                        <div>$0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Management -->
+            <div id="managementSection" class="hidden bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-bold mb-4">Management</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="font-bold mb-2">User Settings</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold mb-2">User List</h4>
+                            <table class="w-full">
+                                <thead>
+                                    <tr>
+                                        <th class="text-left">Username</th>
+                                        <th class="text-left">Role</th>
+                                        <th class="text-left">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userListTable"></tbody>
+                            </table>
+                            <button id="addUserBtn" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md">Add User</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-2">System Settings</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <!-- Add system settings controls here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="addUserModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-md w-96">
+            <h2 class="text-xl font-bold mb-4">Add New User</h2>
+            <form id="addUserForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium">User ID</label>
+                    <input type="text" class="w-full border rounded-md p-2" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Full Name</label>
+                    <input type="text" class="w-full border rounded-md p-2" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Phone</label>
+                    <input type="tel" class="w-full border rounded-md p-2" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Password</label>
+                    <input type="password" class="w-full border rounded-md p-2" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Permissions</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2"> Make Transactions
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2"> View Reports
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2"> Manage Users
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2"> System Settings
+                        </label>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button type="button" class="bg-gray-300 px-4 py-2 rounded-md" onclick="document.getElementById('addUserModal').classList.add('hidden')">Cancel</button>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Save User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize default admin user in localStorage if not exists
+        if (!localStorage.getItem('users')) {
+            const defaultAdmin = {
+                userId: 'admin',
+                password: 'admin',
+                fullName: 'Administrator',
+                phone: '',
+                permissions: {
+                    makeTransactions: true,
+                    viewReports: true,
+                    manageUsers: true,
+                    systemSettings: true
+                }
+            };
+            localStorage.setItem('users', JSON.stringify([defaultAdmin]));
+        }
+
+        // Global variables
+        let currentUser = null;
+        const db = {
+            appSlug: 'pos-tracker-app',
+            userId: null
+        };
+
+        // Event Listeners
+        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+        document.getElementById('makeTransactionBtn').addEventListener('click', () => showSection('transactionForm'));
+        document.getElementById('dailyTransactionBtn').addEventListener('click', () => showSection('dailyTransactions'));
+        document.getElementById('reportBtn').addEventListener('click', () => showSection('reportSection'));
+        document.getElementById('managementBtn').addEventListener('click', () => showSection('managementSection'));
+        document.getElementById('addUserBtn').addEventListener('click', () => document.getElementById('addUserModal').classList.remove('hidden'));
+        document.getElementById('addUserForm').addEventListener('submit', handleAddUser);
+
+        // Login Handler
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users.find(u => u.userId === username && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                db.userId = user.userId;
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                loadUserList();
+            } else {
+                alert('Invalid credentials');
+            }
+        }
+
+        // Logout Handler
+        function handleLogout() {
+            currentUser = null;
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // Show Section Handler
+        function showSection(sectionId) {
+            const sections = ['transactionForm', 'dailyTransactions', 'reportSection', 'managementSection'];
+            sections.forEach(section => {
+                document.getElementById(section).classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+
+        // Add User Handler
+        async function handleAddUser(e) {
+            e.preventDefault();
+            const form = e.target;
+            const newUser = {
+                userId: form.querySelector('input[type="text"]').value,
+                password: form.querySelector('input[type="password"]').value,
+                fullName: form.querySelectorAll('input[type="text"]')[1].value,
+                phone: form.querySelector('input[type="tel"]').value,
+                permissions: {
+                    makeTransactions: form.querySelectorAll('input[type="checkbox"]')[0].checked,
+                    viewReports: form.querySelectorAll('input[type="checkbox"]')[1].checked,
+                    manageUsers: form.querySelectorAll('input[type="checkbox"]')[2].checked,
+                    systemSettings: form.querySelectorAll('input[type="checkbox"]')[3].checked
+                }
+            };
+
+            try {
+                const response = await fetch('https://r0c8kgwocscg8gsokogwwsw4.zetaverse.one/db', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer FFhIhc566eU4eVCMTB9KFpSbSd02',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: db.userId,
+                        appSlug: db.appSlug,
+                        action: 'create',
+                        table: 'users',
+                        data: newUser
+                    })
+                });
+
+                if (response.ok) {
+                    const users = JSON.parse(localStorage.getItem('users') || '[]');
+                    users.push(newUser);
+                    localStorage.setItem('users', JSON.stringify(users));
+                    document.getElementById('addUserModal').classList.add('hidden');
+                    loadUserList();
+                    form.reset();
+                }
+            } catch (error) {
+                console.error('Error adding user:', error);
+                alert('Failed to add user');
+            }
+        }
+
+        // Load User List
+        function loadUserList() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const tableBody = document.getElementById('userListTable');
+            tableBody.innerHTML = '';
+            
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.userId}</td>
+                    <td>${user.permissions.manageUsers ? 'Admin' : 'User'}</td>
+                    <td>
+                        <button class="text-blue-500 hover:text-blue-700 mr-2">Edit</button>
+                        <button class="text-red-500 hover:text-red-700">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
